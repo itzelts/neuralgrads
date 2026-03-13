@@ -1,3 +1,7 @@
+results/
+CLAUDE.md
+claude_plans/
+
 **/archive/
 **/__pycache__/
 **/.ipynb_checkpoints/
