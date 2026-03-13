@@ -124,6 +124,7 @@ class na3shifted(Channel):
         return trap0
     
     def compute_kinetic_variables(self, v):
+        v = v + self.channel_params.get("vshift_na3shifted", 0)
         tha = self.channel_params.get("tha_na3shifted", 1)
         qa = self.channel_params.get("qa_na3shifted", 1)
         Ra = self.channel_params.get("Ra_na3shifted", 1)
