@@ -30,9 +30,18 @@ $$
 J(t) = \frac{\partial V^S(t)}{\partial g_{syn}}
 $$
 
+$$
+J(t) = \frac{\partial V^S(t)}{\partial I_{syn}(t)} \frac{\partial I_{syn}(t)}{\partial g_{syn}}
+$$
+
+
 **Critical distinction:** $V(t)$ in the decoder input is local dendritic voltage, while $V^S(t)$ in the Jacobian is somatic voltage. These are not the same signal. The Jacobian encodes how a conductance perturbation at this synapse propagates through the full dendritic tree — through nonlinear channel dynamics and interactions with other inputs — to affect somatic voltage. Predicting $J(t)$ from local $V(t)$ is therefore a nontrivial mapping, not an algebraic identity.
 
 Because $g_{syn}$ enters the dynamical system only through $I_{syn}(t)$, the Jacobian accumulates signal proportionally to:
+
+$$
+J(t) = \frac{\partial V^S(t)}{\partial I_{syn}(t)} \cdot s(t) \cdot (V(t) - E_{syn})
+$$
 
 $$
 J(t) \propto s(t) \cdot (V(t) - E_{syn})
@@ -77,6 +86,10 @@ Hypotheses are tested using a **pre-specified sequential strategy**: downstream 
 
 > The conjunction of feedforward local dendritic voltage dynamics (EPSP) and feedback via the backpropagating action potential (bAP) carries sufficient information to allow a local decoder to approximate the Jacobian $J(t) = \partial V^S(t) / \partial g_{syn}$ from the local voltage trace $V(t)$ at the synapse.
 
+**Notes to consider**: 
+- EPSP is part of V(t), and the context of other synapses may impact V(t) s.t. V(t) - E_syn --> 0
+- s(t), which is the conductance of the synapse, is also involved in this conjunction proposed in H1. Must include this in further considerations.
+
 **Biological motivation:** The EPSP establishes $s(t) \neq 0$; the bAP modulates $V(t)$ during that window. Their interaction is therefore the primary carrier of $J(t)$ information available locally. This interaction is gated: only when a synapse is active and a bAP arrives does the EPSP × bAP product contribute to $J(t)$.
 
 **Operationally:** A 1D CNN decoder trained on $V(t) \in \mathbb{R}^T$ to predict $J(t) \in \mathbb{R}^T$ achieves $R^2$ exceeding the 97.5th percentile of both null distributions (Null 1 and Null 2), with a 95% CI that excludes the median of each null distribution, evaluated on held-out stimulus patterns via cross-validation.
@@ -96,6 +109,11 @@ Hypotheses are tested using a **pre-specified sequential strategy**: downstream 
 *Analytically ruled out by Consequence 3.* bAP can only enter $J(t)$ through $s(t) \cdot V(t)$. When $s(t) = 0$, bAP has no mathematical pathway to influence $J(t)$. This is excluded by model construction, not empirical test.
 
 *Sanity check:* Confirm that $J(t) \approx 0$ for all inactive synapses ($F = 0$) across all trials including bAP trials, verifying Consequence 1 holds numerically in the Jaxley implementation.
+
+**Note to consider**:
+- If contextual synaptic activity increases V(t) when s(t) = 0, that is not much different from EPSP occuring. If that is the case, then how would we isolate this condition s.t. bAP alone is occuring?
+- If for a given synapse bAP alone is occuring and contextual V(t) depolarization is present, then bAP is not necessarily alone?
+- If V(t) alone in general can be used to encode J(t), then s(t), especially when s(t) = 0 when EPSP should not be occuring, doesn't matter for encoding Jacobian
 
 #### N1b — EPSP alone is sufficient to encode $J(t)$
 
