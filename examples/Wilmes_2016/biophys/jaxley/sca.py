@@ -70,6 +70,7 @@ class sca(Channel):
         
     
     def compute_kinetic_variables(self, v):
+        v = v + self.channel_params.get("vshift_sca", 0)
         actF = self.channel_params.get("actF_sca", 1)
         inactF = self.channel_params.get("inactF_sca", 1)
         q10 = self.channel_params.get("q10_sca", 1)

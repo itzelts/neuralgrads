@@ -78,6 +78,7 @@ class it2(Channel):
         
     
     def compute_kinetic_variables(self, v):
+        v = v + self.channel_params.get("vshift_it2", 0)
         v12m = self.channel_params.get("v12m_it2", 1)
         v12h = self.channel_params.get("v12h_it2", 1)
         vwm = self.channel_params.get("vwm_it2", 1)
