@@ -253,6 +253,16 @@ class PythonCodeGenerator(CodeGenerator):
             params = [param['name'] for param in procedure.signature.get('params', [])]
             if params == []:
                 params = [ast.independent_var_name]
+
+            # If vshift is a channel parameter and the independent variable is voltage,
+            # pass v + vshift to the kinetics procedure instead of bare v
+            if 'vshift' in ast.params and ast.independent_var_name == 'v':
+                params = [
+                    f'v + self.channel_params.get("vshift_{ast.suffix}", 0)'
+                    if p == 'v' else p
+                    for p in params
+                ]
+
             state_vars = list(ast.state_vars.keys())
 
             procedure_call_template = """{%- for state_var in state_vars -%}
