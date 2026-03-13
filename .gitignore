@@ -1,3 +1,8 @@
+results/
+CLAUDE.md
+claude_plans/
+.DS_Store
+
 **/archive/
 **/__pycache__/
 **/.ipynb_checkpoints/
