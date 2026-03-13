@@ -1,6 +1,7 @@
 results/
 CLAUDE.md
 claude_plans/
+.DS_Store
 
 **/archive/
 **/__pycache__/
