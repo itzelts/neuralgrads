@@ -73,7 +73,7 @@ class {{ class_name }}(Channel):
         
     {% for function in functions %}
     {{ function['signature'] }}
-        {%- for param in function['params'] -%}
+        {% for param in function['params'] %}
         {{ param }} = self.channel_params.get("{{ param }}_{{ class_name }}", 1)
         {% endfor %}
         {{ function['body'] }}
