@@ -1,0 +1,28 @@
+name: neuralgrads
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - jupyterlab
+  - ipykernel
+  - pip:
+      - jax==0.4.28
+      - jaxlib==0.4.28
+      - jaxley==0.13.0
+      - tridiax==0.2.1
+      - numpy==1.26.4
+      - scipy==1.13.1
+      - pandas
+      - matplotlib
+      - torch==2.3.0
+      - torchaudio==2.3.0
+      - torchvision==0.18.0
+      - neuron==9.0.1
+      - neuron-reduce==0.0.7
+      - dendrotweaks==0.5.1
+      - symfit==0.5.6
+      - quantities==0.16.4
+      # macOS only — remove on Linux/Windows:
+      # - jax-metal==0.0.7
