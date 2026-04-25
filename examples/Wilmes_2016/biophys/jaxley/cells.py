@@ -30,6 +30,7 @@ s_diam = 18.5
 d_diam = 2.0
 d_length = 300.0
 apical_length = 500.0
+n_seg = 151
 slope_KA = 5.0
 
 R_m = 40000
@@ -70,19 +71,19 @@ parents = [
 branch_specs = {
     SOMA: (s_diam, s_diam, 1),
     AIS: (a_diam, a_diam * 1.5, 1),
-    APROX: (apical_length / 5.0, d_diam, 4),
-    APICAL: (4 * apical_length / 5.0, d_diam, 8),
-    OBLIQUE: (d_length, d_diam / 5.0, 4),
-    BASAL_MAIN: (d_length / 2.0, d_diam / 2.0, 4),
+    APROX: (apical_length / 5.0, d_diam, n_seg // 5 + 1),
+    APICAL: (4 * apical_length / 5.0, d_diam, 4 * n_seg // 5 + 1),
+    OBLIQUE: (d_length, d_diam / 5.0, n_seg),
+    BASAL_MAIN: (d_length / 2.0, d_diam / 2.0, n_seg),
 }
 for i in BASAL_BR:
-    branch_specs[i] = (d_length / 2.0, (2 / 3) * (d_diam / 2.0), 4)
+    branch_specs[i] = (d_length / 2.0, (2 / 3) * (d_diam / 2.0), n_seg)
 for i in SECOND_BASAL:
-    branch_specs[i] = (d_length / 2.0, (2 / 3) ** 2 * (d_diam / 2.0), 4)
+    branch_specs[i] = (d_length / 2.0, (2 / 3) ** 2 * (d_diam / 2.0), n_seg)
 for i in TUFT:
-    branch_specs[i] = (d_length, (2 / 3) * d_diam, 4)
+    branch_specs[i] = (d_length, (2 / 3) * d_diam, n_seg)
 for i in SECOND_BR:
-    branch_specs[i] = (d_length, (2 / 3) ** 2 * d_diam, 4)
+    branch_specs[i] = (d_length, (2 / 3) ** 2 * d_diam, n_seg)
 
 EXCLUDED_FROM_ZONE = [OBLIQUE] + BASAL_BR + SECOND_BASAL
 

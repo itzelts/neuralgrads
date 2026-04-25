@@ -28,9 +28,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import jaxley as jx
+from jaxley.connect import connect
 from jaxley.channels import Leak
 from jaxley.pumps import CaPump
 from examples.Wilmes_2016.biophys.jaxley import (
+    build_pre_cell, AMPA,
     na3, na3dend, na3shifted,
     kdrca1, kap,
     sca, it2, kca,
@@ -224,20 +226,33 @@ cell.branch(AIS).set('gbar_na3shifted', g_Na_ais_shifted)
 
 delta_t = 0.1
 t_max   = 1125.0
-i_delay = 995.0
-i_dur   = 2.0
-i_amp   = 0.3   # nA
+pre_i_delay = 995.0
+pre_i_dur   = 0.5
+pre_i_amp   = 0.1   # nA
+g_ampa_uS   = 0.006 # 6 nS
 
-current = jx.step_current(i_delay=i_delay, i_dur=i_dur, i_amp=i_amp,
-                           delta_t=delta_t, t_max=t_max)
-cell.branch(SOMA).loc(0.5).stimulate(current)
-cell.branch(SOMA).loc(0.5).record("v")
-cell.branch(APICAL).loc(0.9).record("v")
-cell.branch(OBLIQUE).loc(0.5).record("v")
-cell.branch(BASAL_MAIN).loc(0.5).record("v")
-cell.branch(APROX).loc(0.5).record("v")
+pre_cell = build_pre_cell()
+net = jx.Network([pre_cell, cell])
+net.pumped_ions = list({p.ion_name for p in net.pumps})
 
-v = jx.integrate(cell, delta_t=delta_t, t_max=t_max)
+connect(
+    net.cell(0).branch(0).loc(0.5),
+    net.cell(1).branch(SOMA).loc(0.5),
+    AMPA(),
+)
+net.select(edges=0).set("AMPA_gAMPA", g_ampa_uS)
+
+pre_current = jx.step_current(
+    i_delay=pre_i_delay, i_dur=pre_i_dur, i_amp=pre_i_amp, delta_t=delta_t, t_max=t_max
+)
+net.cell(0).branch(0).loc(0.5).stimulate(pre_current)
+net.cell(1).branch(SOMA).loc(0.5).record("v")
+net.cell(1).branch(APICAL).loc(0.9).record("v")
+net.cell(1).branch(OBLIQUE).loc(0.5).record("v")
+net.cell(1).branch(BASAL_MAIN).loc(0.5).record("v")
+net.cell(1).branch(APROX).loc(0.5).record("v")
+
+v = jx.integrate(net, delta_t=delta_t, t_max=t_max)
 t = np.arange(0, t_max, delta_t)
 
 os.makedirs('results', exist_ok=True)
@@ -255,10 +270,10 @@ ax1.set_xlim(990, 1100)
 ax1.set_ylim(-80, 40)
 ax1.set_xlabel('Time (ms)')
 ax1.set_ylabel('Voltage (mV)')
-ax1.set_title('Voltage Traces Under Somatic Stimulus — Wilmes 2016 Multicompartment')
+ax1.set_title('Voltage Traces — Pre (HH) → AMPA → Wilmes 2016 Multicompartment')
 ax1.legend()
 fig1.tight_layout()
-fig1.savefig('results/wilmes_2016_multicomp.png', dpi=150)
+fig1.savefig('results/wilmes_2016_network_traces.png', dpi=150)
 
 
 cell.compute_xyz()
@@ -299,4 +314,23 @@ ax2.legend(handles=[
     Line2D([0], [0], color='lightblue',      lw=2, label='Apical tuft 2nd order'),
 ], loc='upper right', fontsize=7)
 fig2.tight_layout()
-fig2.savefig('results/wilmes_2016_morphology.png', dpi=150)
+fig2.savefig('results/wilmes_network_morphology.png', dpi=150)
+
+fig3, ax3 = plt.subplots(1, 1, figsize=(5, 10))
+try:
+    net.compute_xyz()
+    # net.rotate(180)
+    net.arrange_in_layers(
+        layers=[1, 1],
+        within_layer_offset=250,
+        between_layer_offset=600,
+    )
+    net.vis(ax=ax3, detail="full")
+except Exception:
+    pre_cell.compute_xyz()
+    cell.compute_xyz()
+    pre_cell.vis(ax=ax3, color="gray")
+    cell.vis(ax=ax3, color="black")
+ax3.set_title("Pre/Post Network (AMPA onto soma)")
+fig3.tight_layout()
+fig3.savefig('results/wilmes_2016_network.png', dpi=150)
